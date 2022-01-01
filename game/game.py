@@ -12,8 +12,7 @@ class Ball:
 
     def ran(self):
         return random.randint(-3,3)
-    def stop(self):
-      return random.randint(0,0)
+
 
     def draw(self,game):
         self.canvas.move(self.id, self.x,self.y)
@@ -39,11 +38,42 @@ class Ball:
         self.x=x
         self.y=y
 
+class Paddle:
+
+    def flip(self):
+        pos = self.canvas.coords(self.pad)
+        print(pos)
+        if pos[2] >=500: 
+            self.changePad(-500,0)
+        if pos[0]<=0:
+            self.changePad(500,0)
+
+    def __init__(self,canvas,color):
+        self.x=200
+        self.y=250
+        self.color=color
+        self.canvas=canvas
+        self.pad=canvas.create_rectangle(0,0,100,10,fill=color)
+        self.canvas.move(self.pad, 200, 300)
+        self.canvas.bind_all('<KeyPress-Left>',self.move_left)
+        self.canvas.bind_all('<KeyPress-Right>',self.move_right)
+        
+    def move_left(self,evt):
+        self.canvas.move(self.pad, -5, 0)
+    def move_right(self,evt):
+        self.canvas.move(self.pad, 5, 0)
+        self.flip()
+    def changePad(self,x,y):
+        self.canvas.move(self.pad,x,y)
+        
+    
+
 
 
         
 
 class Game:
+
     def __init__(self,canvas):
         self.canvas=canvas
         self.level=1
@@ -52,6 +82,7 @@ class Game:
         self.idlevel=canvas.create_text(125,375, text= 'level='+str(self.level), fill='red',font=('Trebuchet '))
         self.idscore=canvas.create_text(350,375, text= 'score='+str(self.score), fill='red',font=('Trebuchet '))
         self.curlives=canvas.create_text(240,375, text= 'lives='+str(self.lives), fill='red',font=('Trebuchet '))
+
 
     def addScore(self):
         if self.level<= 10:
@@ -87,9 +118,11 @@ canvas.pack()
 
 ball = Ball(canvas,'lime')
 game = Game(canvas)
+paddle=Paddle(canvas,'blue')
 
 while game.gameover() == False:
     ball.draw(game)
+    paddle.flip()
     tk.update_idletasks()
     tk.update()
     time.sleep(0.01)
